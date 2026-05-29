@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Ai</title>
+    <style>
+        /* Menggunakan warna khas dari image_d90a85.png (Biru Gelap ke Hitam) */
+        :root {
+            --primary-bg: rgba(10, 15, 30, 0.6);
+            --sidebar-bg: rgba(5, 8, 15, 0.85);
+            --chat-user: rgba(20, 60, 150, 0.8);
+            --chat-ai: rgba(30, 40, 60, 0.8);
+            --text-light: #e0e0e0;
+            --text-muted: #9aa0a6;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body, html {
+            height: 100%;
+            background-color: #000;
+            color: var(--text-light);
+            overflow: hidden;
+        }
+
+        /* Latar Belakang Animasi menggunakan image_d90a85.png */
+        .bg-animated {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('image_d90a85.png') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+            animation: breathe 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes breathe {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* Pop-up Animasi Pembukaan menggunakan fandy.jpg */
+        #welcome-popup {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        #welcome-popup img {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 100, 255, 0.3);
+            animation: popIn 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Layout Utama ala Gemini */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            backdrop-filter: blur(10px); /* Efek Glassmorphism */
+        }
+
+        /* Sidebar Riwayat Chat */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .new-chat-btn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            transition: background 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .new-chat-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+        }
+
+        /* Area Chat Utama */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--primary-bg);
+        }
+
+        .chat-display {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        /* Bubble Chat */
+        .bubble {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            line-height: 1.5;
+            font-size: 15px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .bubble.user {
+            background: var(--chat-user);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bubble.ai {
+            background: var(--chat-ai);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Input Area */
+        .input-container {
+            padding: 20px 40px;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-box {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(30, 40, 50, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .input-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            padding: 10px;
+            outline: none;
+        }
+
+        .input-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            background: transparent;
+            border: none;
+            color: #4a90e2;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .send-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animated"></div>
+
+    <div id="welcome-popup">
+        <img src="fandy.jpg" alt="Welcome Animation Poster">
+    </div>
+
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="logo">
+                ✨ Fan Ai
+            </div>
+            <button class="new-chat-btn">
+                <span>+</span> Chat Baru
+            </button>
+            <div class="history-list">
+                <div class="history-item">Desain Web UI/UX Profesional</div>
+                <div class="history-item">Cara belajar animasi 3D</div>
+                <div class="history-item">Ide proyek Graphic Design</div>
+            </div>
+        </div>
+
+        <div class="main-chat">
+            <div class="chat-display" id="chat-display">
+                <div class="bubble ai">
+                    Halo! Saya Fan Ai. Ada yang bisa saya bantu untuk proyek coding, desain grafis, atau animasi Anda hari ini?
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-box">
+                    <input type="text" id="user-input" placeholder="Ketik pesan di sini..." autocomplete="off">
+                    <button class="send-btn" id="send-btn">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       
+        document.addEventListener("DOMContentLoaded", () => {
+            const popup = document.getElementById("welcome-popup");
+            setTimeout(() => {
+                popup.style.opacity = "0";
+                setTimeout(() => { popup.style.visibility = "hidden"; }, 1000); 
+            }, 3500); 
+        });
+
+        const chatDisplay = document.getElementById("chat-display");
+        const userInput = document.getElementById("user-input");
+        const sendBtn = document.getElementById("send-btn");
+        const newChatBtn = document.querySelector(".new-chat-btn");
+
+        function addMessage(text, sender) {
+            if (!text.trim()) return;
+            const bubble = document.createElement("div");
+            bubble.classList.add("bubble", sender);
+            bubble.innerText = text;
+            chatDisplay.appendChild(bubble);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight; 
+        }
+
+        async function handleSend() {
+            const text = userInput.value;
+            if (text.trim() !== "") {
+                addMessage(text, "user");
+                userInput.value = "";
+
+                const loadingBubble = document.createElement("div");
+                loadingBubble.classList.add("bubble", "ai");
+                loadingBubble.innerText = "Mengetik...";
+                chatDisplay.appendChild(loadingBubble);
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+                try {
+                  
+                    const response = await fetch(`/.netlify/functions/gemini`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: text })
+                    });
+                    
+                    const data = await response.json();
+                    
+                
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    
+                   
+                    chatDisplay.removeChild(loadingBubble);
+                    addMessage(aiResponse, "ai");
+
+                } catch (error) {
+                    chatDisplay.removeChild(loadingBubble);
+                    addMessage("Maaf, terjadi kesalahan saat menghubungi server. Pastikan folder netlify sudah di-upload dengan benar.", "ai");
+                    console.error(error);
+                }
+            }
+        }
+
+        sendBtn.addEventListener("click", handleSend);
+
+        userInput.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") { handleSend(); }
+        });
+
+        newChatBtn.addEventListener("click", () => {
+            chatDisplay.innerHTML = "";
+            setTimeout(() => {
+                addMessage("Halo! Saya Fan Ai. Ada yang bisa saya bantu untuk proyek Anda hari ini?", "ai");
+            }, 300);
+        });
+    </script>
+</body>
+</html>
