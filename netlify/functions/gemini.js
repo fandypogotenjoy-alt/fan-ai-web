@@ -8,7 +8,8 @@ exports.handler = async function(event, context) {
     const userText = body.text;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        // Menggunakan model gemini-1.0-pro yang paling stabil
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${API_KEY}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
