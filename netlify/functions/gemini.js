@@ -4,25 +4,38 @@ exports.handler = async function(event, context) {
     }
 
     const API_KEY = process.env.GEMINI_API_KEY;
-    const body = JSON.parse(event.body);
-    const userText = body.text;
 
     try {
-        // Menggunakan alias dasar yang pasti dikenali oleh semua API Key
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: userText }] }]
-            })
-        });
+        // Trik Hack: Kita panggil API Google untuk mendaftar semua model yang tersedia
+        const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
+        const listData = await listResponse.json();
 
-        const data = await response.json();
+        let modelNames = "Tidak dapat mengambil daftar model.";
         
+        if (listData && listData.models) {
+            // Kita saring hanya model yang bisa dipakai untuk chat (generateContent)
+            const availableModels = listData.models
+                .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
+                .map(m => m.name.replace('models/', '')); // Hapus kata 'models/' agar bersih
+            
+            modelNames = availableModels.join(", ");
+        }
+
+        // Kita bungkus hasilnya dengan format balasan chat AI
+        // Supaya daftar modelnya langsung muncul di layar chat-mu!
         return {
             statusCode: 200,
-            body: JSON.stringify(data)
+            body: JSON.stringify({
+                candidates: [{
+                    content: {
+                        parts: [{
+                            text: "🤖 HASIL SCAN SERVER GOOGLE:\n\nModel yang diizinkan untuk API Key kamu adalah:\n" + modelNames + "\n\nSilakan pilih salah satu dari nama di atas, dan beri tahu aku!"
+                        }]
+                    }
+                }]
+            })
         };
+
     } catch (error) {
         return {
             statusCode: 500,
