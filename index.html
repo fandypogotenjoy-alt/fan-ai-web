@@ -92,13 +92,17 @@
         }
 
         .logo {
-            font-size: 24px;
-            font-weight: bold;
             margin-bottom: 30px;
-            color: #fff;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center; /* Menengahkan logo */
+        }
+        
+        /* Mengatur ukuran gambar logo agar rapi */
+        .logo img {
+            max-width: 100%;
+            max-height: 80px; 
+            border-radius: 10px; /* Sedikit melengkung di sudut (opsional) */
         }
 
         .new-chat-btn {
@@ -126,22 +130,6 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-        }
-
-        .history-item {
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .history-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-light);
         }
 
         /* Area Chat Utama */
@@ -185,7 +173,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        /* --- CSS BARU UNTUK MERAPIKAN MARKDOWN AI --- */
+        /* CSS BARU UNTUK MERAPIKAN MARKDOWN AI */
         .bubble.ai p { margin-bottom: 12px; }
         .bubble.ai p:last-child { margin-bottom: 0; }
         .bubble.ai h1, .bubble.ai h2, .bubble.ai h3 { 
@@ -200,7 +188,6 @@
         }
         .bubble.ai li { margin-bottom: 6px; }
         .bubble.ai strong { color: #fff; font-weight: 600; }
-        /* --------------------------------------------- */
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -276,16 +263,13 @@
     <div class="app-container">
         <div class="sidebar">
             <div class="logo">
-                ✨ Fan Ai
+                <img src="image_d8679c.png" alt="Fan Ai Logo">
             </div>
             <button class="new-chat-btn">
                 <span>+</span> Chat Baru
             </button>
             <div class="history-list">
-                <div class="history-item"></div>
-                <div class="history-item"></div>
-                <div class="history-item"></div>
-            </div>
+                </div>
         </div>
 
         <div class="main-chat">
@@ -327,13 +311,12 @@
             const bubble = document.createElement("div");
             bubble.classList.add("bubble", sender);
             
-            // --- LOGIKA BARU: Terjemahkan Markdown hanya untuk balasan AI ---
+            // Terjemahkan Markdown hanya untuk balasan AI
             if (sender === "ai") {
                 bubble.innerHTML = marked.parse(text);
             } else {
                 bubble.innerText = text;
             }
-            // ----------------------------------------------------------------
 
             chatDisplay.appendChild(bubble);
             chatDisplay.scrollTop = chatDisplay.scrollHeight; 
