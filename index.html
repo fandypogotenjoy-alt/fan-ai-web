@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fan Ai</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
         /* Menggunakan warna khas dari image_d90a85.png (Biru Gelap ke Hitam) */
         :root {
@@ -164,7 +167,7 @@
             max-width: 70%;
             padding: 15px 20px;
             border-radius: 20px;
-            line-height: 1.5;
+            line-height: 1.6;
             font-size: 15px;
             animation: fadeIn 0.3s ease-in-out;
         }
@@ -181,6 +184,23 @@
             border-bottom-left-radius: 4px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+
+        /* --- CSS BARU UNTUK MERAPIKAN MARKDOWN AI --- */
+        .bubble.ai p { margin-bottom: 12px; }
+        .bubble.ai p:last-child { margin-bottom: 0; }
+        .bubble.ai h1, .bubble.ai h2, .bubble.ai h3 { 
+            margin-top: 15px; 
+            margin-bottom: 10px; 
+            font-size: 1.15em;
+            color: #fff;
+        }
+        .bubble.ai ul, .bubble.ai ol { 
+            margin-left: 20px; 
+            margin-bottom: 12px; 
+        }
+        .bubble.ai li { margin-bottom: 6px; }
+        .bubble.ai strong { color: #fff; font-weight: 600; }
+        /* --------------------------------------------- */
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -229,138 +249,4 @@
             padding: 10px;
             border-radius: 50%;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s;
-        }
-
-        .send-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .send-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="bg-animated"></div>
-
-    <div id="welcome-popup">
-        <img src="fandy.jpg" alt="Welcome Animation Poster">
-    </div>
-
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="logo">
-                ✨ Fan Ai
-            </div>
-            <button class="new-chat-btn">
-                <span>+</span> Chat Baru
-            </button>
-            <div class="history-list">
-                <div class="history-item">Desain Web UI/UX Profesional</div>
-                <div class="history-item">Cara belajar animasi 3D</div>
-                <div class="history-item">Ide proyek Graphic Design</div>
-            </div>
-        </div>
-
-        <div class="main-chat">
-            <div class="chat-display" id="chat-display">
-                <div class="bubble ai">
-                    Halo! Saya Fan Ai. Ada yang bisa saya bantu untuk proyek coding, desain grafis, atau animasi Anda hari ini?
-                </div>
-            </div>
-
-            <div class="input-container">
-                <div class="input-box">
-                    <input type="text" id="user-input" placeholder="Ketik pesan di sini..." autocomplete="off">
-                    <button class="send-btn" id="send-btn">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-       
-        document.addEventListener("DOMContentLoaded", () => {
-            const popup = document.getElementById("welcome-popup");
-            setTimeout(() => {
-                popup.style.opacity = "0";
-                setTimeout(() => { popup.style.visibility = "hidden"; }, 1000); 
-            }, 3500); 
-        });
-
-        const chatDisplay = document.getElementById("chat-display");
-        const userInput = document.getElementById("user-input");
-        const sendBtn = document.getElementById("send-btn");
-        const newChatBtn = document.querySelector(".new-chat-btn");
-
-        function addMessage(text, sender) {
-            if (!text.trim()) return;
-            const bubble = document.createElement("div");
-            bubble.classList.add("bubble", sender);
-            bubble.innerText = text;
-            chatDisplay.appendChild(bubble);
-            chatDisplay.scrollTop = chatDisplay.scrollHeight; 
-        }
-
-        async function handleSend() {
-            const text = userInput.value;
-            if (text.trim() !== "") {
-                addMessage(text, "user");
-                userInput.value = "";
-
-                const loadingBubble = document.createElement("div");
-                loadingBubble.classList.add("bubble", "ai");
-                loadingBubble.innerText = "Mengetik...";
-                chatDisplay.appendChild(loadingBubble);
-                chatDisplay.scrollTop = chatDisplay.scrollHeight;
-
-                try {
-                  
-                    const response = await fetch(`/.netlify/functions/gemini`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ text: text })
-                    });
-                    
-                    const data = await response.json();
-                    
-                
-                    const aiResponse = data.candidates[0].content.parts[0].text;
-                    
-                   
-                    chatDisplay.removeChild(loadingBubble);
-                    addMessage(aiResponse, "ai");
-
-                } catch (error) {
-                    chatDisplay.removeChild(loadingBubble);
-                    addMessage("Maaf, terjadi kesalahan saat menghubungi server. Pastikan folder netlify sudah di-upload dengan benar.", "ai");
-                    console.error(error);
-                }
-            }
-        }
-
-        sendBtn.addEventListener("click", handleSend);
-
-        userInput.addEventListener("keypress", function (e) {
-            if (e.key === "Enter") { handleSend(); }
-        });
-
-        newChatBtn.addEventListener("click", () => {
-            chatDisplay.innerHTML = "";
-            setTimeout(() => {
-                addMessage("Halo! Saya Fan Ai. Ada yang bisa saya bantu untuk proyek Anda hari ini?", "ai");
-            }, 300);
-        });
-    </script>
-</body>
-</html>
+            align
